@@ -11,6 +11,7 @@
 #include "stm32f3xx_hal.h"
 #include "spi.h"
 
+void ADS1247_Init();
 
 uint8_t ADS1247_xfer(uint8_t byte);
 void ADS1247_Reset();

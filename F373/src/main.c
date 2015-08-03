@@ -86,7 +86,7 @@ int main(void)
   MX_CAN_Init();
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
-
+  ADS1247_Reset();
   HAL_Delay(500);
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_RESET);
   HAL_Delay(500);
@@ -96,13 +96,7 @@ int main(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 
   HAL_Delay(1);
-  ADS1247_Reset();
-
-  ADS1247_WriteReg(0x02, 0x20);	// REF ON
-  ADS1247_WriteReg(0x0A, 0x06); // IDAC = 1mA
-  ADS1247_WriteReg(0x0B, 0x03); // IDAC1 -> AIN0, IDAC2 -> AIN3
-  ADS1247_WriteReg(0x03, 0x30); // PGA=8
-  ADS1247_WriteReg(0x00, 0x11); // inP = AIN2, inM = AIN1
+  ADS1247_Init();
 
   //ADS1247_SELFOCAL();
 
