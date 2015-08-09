@@ -33,6 +33,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
 
+extern uint8_t usb_ready;
+
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
@@ -192,7 +194,7 @@ static int8_t CDC_Control_FS  (uint8_t cmd, uint8_t* pbuf, uint16_t length)
   /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
   /*******************************************************************************/
   case CDC_SET_LINE_CODING:   
-	
+	  usb_ready = 1;
     break;
 
   case CDC_GET_LINE_CODING:     

@@ -40,6 +40,9 @@
 #include "gpio.h"
 #include "ads1247.h"
 
+uint8_t usb_ready = 0;
+extern PCD_HandleTypeDef hpcd_USB_FS;
+
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 /* USER CODE END Includes */
@@ -80,17 +83,21 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_SET);
 
 
   MX_CAN_Init();
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
   ADS1247_Reset();
+  //USB_OTG_dev.regs.DREGS->DCTL |= 0x02;
+
+
+  /* USB Reset CONNECT. DISCONNECT somehow not working properly */
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_SET);
   HAL_Delay(500);
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_RESET);
+  //hpcd_USB_FS.Instance->CNTR |= (0x0001);
   HAL_Delay(500);
-
   /* USER CODE BEGIN 2 */
   // set cs
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
@@ -98,6 +105,10 @@ int main(void)
   HAL_Delay(1);
   ADS1247_Init();
 
+  while (usb_ready == 0) {
+	  HAL_Delay(250);
+	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+  }
   //ADS1247_SELFOCAL();
 
   /* USER CODE END 2 */
@@ -111,8 +122,11 @@ int main(void)
 	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 
 	  double res = (ADS1247_Value()/16777216.0)*4*820/(8.0);
-	  printf ("Res: %f\n\r", res);
-
+	  if (res >= 200.0) {
+		  printf ("no sensor connected!\r\n");
+	  } else {
+		  printf ("Res: %f\r\n", res);
+	  }
 
   /* USER CODE BEGIN 3 */
 
