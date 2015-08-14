@@ -84,6 +84,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
 
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_SET);
 
   MX_CAN_Init();
   MX_SPI1_Init();
@@ -93,7 +94,7 @@ int main(void)
 
 
   /* USB Reset CONNECT. DISCONNECT somehow not working properly */
-  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_SET);
+
   HAL_Delay(500);
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_RESET);
   //hpcd_USB_FS.Instance->CNTR |= (0x0001);
