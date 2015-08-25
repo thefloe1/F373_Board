@@ -62,6 +62,24 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN 0 */
 
+// from -200° in 10° steps
+double RTD_Temp(double res)
+{
+	const double Pt100[] = {18.52,22.83,27.10,31.34,35.54,39.72,43.88,48.00,52.11,56.19,60.26,64.30,68.33,72.33,76.33,80.31,84.27,88.22,92.16,96.09,100.00,103.90,107.79,111.67,115.54,119.40,123.24,127.08,130.90,134.71,138.51};
+
+	uint16_t  i=0;
+	double temp = -200.0;
+
+	while (res > Pt100[i++]) {
+		if (temp >= 100.00)
+			break;
+
+		if (res < Pt100[i])
+			return temp + (res-Pt100[i-1]) * 10.00 / (Pt100[i]-Pt100[i-1]);
+		temp += 10.00;
+	}
+	return temp;
+}
 
 /* USER CODE END 0 */
 USBD_HandleTypeDef hUsbDeviceFS;
@@ -84,7 +102,10 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
 
+  // USB Disconnect for reenumeration, seems to work better with longer delay
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_SET);
+  HAL_Delay(1000);
+
 
   MX_CAN_Init();
   MX_SPI1_Init();
@@ -93,12 +114,11 @@ int main(void)
   //USB_OTG_dev.regs.DREGS->DCTL |= 0x02;
 
 
-  /* USB Reset CONNECT. DISCONNECT somehow not working properly */
-
   HAL_Delay(500);
   HAL_GPIO_WritePin(GPIOF, GPIO_PIN_6, GPIO_PIN_RESET);
   //hpcd_USB_FS.Instance->CNTR |= (0x0001);
   HAL_Delay(500);
+
   /* USER CODE BEGIN 2 */
   // set cs
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
@@ -126,7 +146,7 @@ int main(void)
 	  if (res >= 200.0) {
 		  printf ("no sensor connected!\r\n");
 	  } else {
-		  printf ("Res: %f\r\n", res);
+		  printf ("Res: %.3f; Temp: %.2f\r\n", res, RTD_Temp(res));
 	  }
 
   /* USER CODE BEGIN 3 */
